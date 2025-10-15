@@ -16,6 +16,8 @@
 - Свободны порты: `8000` (API/UI), `5432` (PostgreSQL).
 
 ### Запуск
+
+Убедитесь, что в \battery-monitor\backend\entrypoint.sh - Последивательность конца строки - LF, а не CRLF
 ```bash
 copy .env.example .env
 docker compose up --build

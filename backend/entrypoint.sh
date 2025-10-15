@@ -1,5 +1,5 @@
-#!/bin/sh
-set -e
+#!/usr/bin/env sh
+set -eu
 
 python - <<'PY'
 import os, time
