@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Battery Monitor UI</title>
+  <style>
+    :root{
+      --bg:#f7fafc;
+      --panel:#ffffff;
+      --text:#0f172a;
+      --muted:#556070;
+      --accent:#2563eb;
+      --accent-2:#1d4ed8;
+      --ok:#16a34a;
+      --warn:#ea580c;
+      --danger:#dc2626;
+      --border:#e5e7eb;
+      --chip:#f1f5f9;
+      --shadow:0 10px 24px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+         background:var(--bg); color:var(--text); margin:0; padding:24px}
+    .container{max-width:1100px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:28px;margin:0}
+    .badge{background:var(--chip); border:1px solid var(--border); padding:6px 10px; border-radius:999px; font-size:12px; color:var(--muted)}
+    .grid{display:grid;gap:16px}
+    @media(min-width:900px){ .grid-2{grid-template-columns:1fr 1fr} }
+    .card{background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:var(--shadow)}
+    .card h2{margin:0 0 12px;font-size:18px}
+    label{display:block;font-size:13px;color:var(--muted);margin:8px 0 6px}
+    input, select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--text);outline:none}
+    input:focus, select:focus{border-color:var(--accent)}
+    .row{display:grid;gap:12px}
+    @media(min-width:560px){ .row-2{grid-template-columns:1fr 1fr} }
+    button{padding:9px 13px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--text);cursor:pointer;transition:.15s; font-weight:600}
+    button:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(0,0,0,.05)}
+    .btn-primary{background:var(--accent); color:#fff; border-color:var(--accent-2)}
+    .btn-ghost{background:#fff}
+    .btn-ok{background:var(--ok); color:#fff; border-color:#15803d}
+    .btn-warn{background:var(--warn); color:#fff; border-color:#c2410c}
+    .btn-danger{background:var(--danger); color:#fff; border-color:#b91c1c}
+    .muted{color:var(--muted); font-size:13px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:10px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:top}
+    th{color:var(--muted);font-weight:600;text-align:left}
+    .chips{display:flex;flex-wrap:wrap;gap:6px}
+    .chip{background:var(--chip); border:1px solid var(--border); padding:6px 10px; border-radius:999px; font-size:12px}
+    .flex{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .right{margin-left:auto}
+    footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+    .actions{display:flex; gap:6px; flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Battery Monitor UI</h1>
+      <span class="badge">FastAPI · PostgreSQL · Docker</span>
+    </header>
+
+    <div class="grid grid-2">
+      <section class="card">
+        <h2>Создать устройство</h2>
+        <div class="row row-2">
+          <div>
+            <label>Название</label>
+            <input id="d_name" placeholder="dev-001">
+          </div>
+          <div>
+            <label>Версия прошивки</label>
+            <input id="d_fw" placeholder="1.0.0">
+          </div>
+        </div>
+        <div class="flex" style="margin-top:8px">
+          <label class="flex"><input type="checkbox" id="d_on" style="width:auto;margin-right:8px"> Включено</label>
+          <button class="btn-primary right" onclick="createDevice()">Создать</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Создать АКБ</h2>
+        <div class="row row-2">
+          <div>
+            <label>Название</label>
+            <input id="b_name" placeholder="akb-001">
+          </div>
+          <div>
+            <label>Номинальное напряжение</label>
+            <input id="b_volt" type="number" step="0.1" placeholder="12.0">
+          </div>
+        </div>
+        <div class="row row-2">
+          <div>
+            <label>Остаточная емкость</label>
+            <input id="b_cap" type="number" step="0.1" placeholder="85.5">
+          </div>
+          <div>
+            <label>Срок службы (мес.)</label>
+            <input id="b_life" type="number" placeholder="36">
+          </div>
+        </div>
+        <div class="flex" style="margin-top:8px">
+          <span class="muted">Все поля обязательны</span>
+          <button class="btn-primary right" onclick="createBattery()">Создать</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Связать устройство и АКБ</h2>
+        <div class="row row-2">
+          <div>
+            <label>Устройство</label>
+            <select id="sel_device"></select>
+          </div>
+          <div>
+            <label>АКБ</label>
+            <select id="sel_battery"></select>
+          </div>
+        </div>
+        <div class="flex" style="margin-top:8px">
+          <span class="muted">Ограничение: максимум 5 АКБ на устройство</span>
+          <button class="btn-primary right" onclick="linkSelected()">Связать</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Просмотр связей</h2>
+        <div class="row row-2">
+          <div>
+            <label>Устройство</label>
+            <select id="view_sel_device"></select>
+          </div>
+          <div class="flex" style="align-items:flex-end">
+            <button class="btn-ghost" onclick="viewLinks()">Показать АКБ</button>
+            <button class="btn-danger" onclick="unlinkSelected()">Отвязать выбранные</button>
+          </div>
+        </div>
+        <div id="links_chips" class="chips" style="margin-top:8px"></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="flex">
+        <h2 style="margin-right:auto">Списки</h2>
+        <button class="btn-ghost" onclick="loadAll()">Обновить</button>
+      </div>
+      <div class="grid grid-2" style="margin-top:8px">
+        <div>
+          <h3 class="muted" style="margin:0 0 6px">Устройства</h3>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Имя</th><th>FW</th><th>Вкл</th><th>АКБ (IDs)</th><th>Действия</th></tr>
+            </thead>
+            <tbody id="tbl_devices"></tbody>
+          </table>
+        </div>
+        <div>
+          <h3 class="muted" style="margin:0 0 6px">АКБ</h3>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Имя</th><th>Uн</th><th>Емк</th><th>Срок</th><th>Действия</th></tr>
+            </thead>
+            <tbody id="tbl_batteries"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer>Светлая тема · чистый HTML/CSS/JS · © Battery Monitor</footer>
+  </div>
+
+  <script src="/ui/script.js"></script>
+</body>
+</html>
