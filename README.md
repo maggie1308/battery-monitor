@@ -17,7 +17,7 @@
 
 ### Запуск
 ```bash
-cp .env.example .env
+copy .env.example .env
 docker compose up --build
 ```
 Откройте в браузере:
