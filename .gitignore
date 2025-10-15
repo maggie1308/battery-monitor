@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Alembic caches
+alembic/versions/__pycache__/
+
+# Node (если появится фронт)
+node_modules/
+
+# Docker artifacts
+*.log
