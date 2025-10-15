@@ -19,6 +19,8 @@
 
 Убедитесь, что в \battery-monitor\backend\entrypoint.sh - Последивательность конца строки - LF, а не CRLF
 ```bash
+git clone https://github.com/maggie1308/battery-monitor.git
+cd battery-monitor  
 copy .env.example .env
 docker compose up --build
 ```
