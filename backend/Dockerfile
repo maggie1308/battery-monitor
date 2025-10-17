@@ -1,30 +1,20 @@
 FROM python:3.12-slim
 
 WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
-RUN apt-get update && apt-get install -y build-essential curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl \
+  && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt ./
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY entrypoint.sh ./
-RUN python - <<'PY'
-p = '/app/entrypoint.sh'
-data = open(p, 'rb').read()
-# убрать UTF-8 BOM
-if data.startswith(b'\xef\xbb\xbf'):
-    data = data[3:]
-# нормализовать переводы строк
-data = data.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
-# заменить дефисы (en dash/em dash/minus) на ASCII "-"
-for ch in ('–', '—', '−'):
-    data = data.replace(ch.encode('utf-8'), b'-')
-open(p, 'wb').write(data)
-PY
-RUN chmod +x /app/entrypoint.sh
+# Копируем весь backend в /app
+COPY . .
 
-COPY ../.. .
 
-ENV PYTHONUNBUFFERED=1
+RUN find /app -type f -name "*.sh" -print0 | xargs -0 sed -i 's/\r$//' \
+ && chmod +x /app/entrypoint.sh
 
 EXPOSE 8000
